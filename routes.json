@@ -1,0 +1,6 @@
+{
+  "routes": [
+    { "path": "/", "name": "home" },
+    { "path": "/?tab=invoices", "name": "invoices" }
+  ]
+}

@@ -1,0 +1,17 @@
+# Invoice Chase - local only
+# Grok CLI / MCP (local only — do not publish)
+.grok/
+
+node_modules/
+ui-captures/
+.auth/
+.env
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

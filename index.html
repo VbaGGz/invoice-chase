@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Invoice Chase - Simple mobile-friendly tool to scan unpaid invoices and automatically send professional payment reminders.">
+  <meta name="theme-color" content="#4f46e5">
+  <title>Invoice Chase</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%234f46e5'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='white' font-family='system-ui,sans-serif' font-weight='700'%3EIC%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #4f46e5;
+      --accent-light: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #e2e8f0;
+      --radius: 16px;
+      --radius-lg: 24px;
+      --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: var(--text-muted);
+      font-size: 22px;
+      cursor: pointer;
+      transition: background 0.1s ease;
+    }
+    .icon-btn:hover, .icon-btn:active { background: #f1f5f9; }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .hero {
+      text-align: center;
+      padding: 48px 16px 32px;
+    }
+    .hero h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 12px;
+      line-height: 1.2;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 17px;
+      margin: 0 0 32px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      font-size: 17px;
+      font-weight: 600;
+      border-radius: var(--radius-lg);
+      border: none;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s;
+      text-decoration: none;
+      min-height: 52px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 14px 0 rgb(79 70 229 / 0.3);
+    }
+    .btn-primary:active { transform: scale(0.985); }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-large {
+      width: 100%;
+      padding: 18px 24px;
+      font-size: 19px;
+      border-radius: 20px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 0 0 32px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 12px 4px;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0 6px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      gap: 2px;
+      min-height: 56px;
+    }
+    .nav-item.active {
+      color: var(--accent);
+    }
+    .nav-item svg {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 1px;
+    }
+
+    /* Cards */
+    .invoice-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+    .invoice-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .customer-name { font-weight: 600; font-size: 17px; }
+    .amount { font-size: 20px; font-weight: 700; color: var(--accent); }
+    .due-date { font-size: 13px; color: var(--text-muted); }
+    .status-badge {
+      font-size: 12px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .status-overdue { background: #fee2e2; color: #b91c1c; }
+    .status-due-soon { background: #fef3c7; color: #92400e; }
+    .status-ok { background: #ecfdf5; color: #047857; }
+
+    /* Modals */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: none;
+      align-items: flex-end;
+      z-index: 200;
+      padding: 0;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: var(--surface);
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 24px 20px 32px;
+      box-shadow: 0 -10px 30px rgb(0 0 0 / 0.15);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-size: 20px; font-weight: 700; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 17px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      transition: border 0.1s;
+    }
+    .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgb(79 70 229 / 0.1); }
+
+    .preview-img {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      background: #f1f5f9;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .toast-container {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 360px;
+      padding: 0 16px;
+      pointer-events: none;
+    }
+    .toast {
+      background: #0f172a;
+      color: white;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 15px;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2);
+      pointer-events: auto;
+      animation: slideUp 0.2s ease forwards;
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px 40px;
+      color: var(--text-muted);
+    }
+    .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.4; }
+
+    .progress-bar {
+      height: 6px;
+      background: #e0e7ff;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      transition: width 0.2s ease;
+    }
+
+    .raw-text {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      max-height: 160px;
+      overflow: auto;
+      color: #334155;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (min-width: 640px) {
+      .modal { align-items: center; padding: 40px 20px; }
+      .modal-content { border-radius: var(--radius-lg); max-height: 85vh; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="logo">Invoice Chase</div>
+      <button id="settings-btn" class="icon-btn" aria-label="Settings">⚙️</button>
+    </div>
+  </header>
+
+  <!-- HOME VIEW -->
+  <div id="home-view" class="view active">
+    <div class="container">
+      <div class="hero">
+        <h1>Never chase<br>an invoice again.</h1>
+        <p>Scan an unpaid invoice. We extract the details and send polite reminders automatically.</p>
+
+        <button id="scan-btn" class="btn btn-primary btn-large">
+          <span>📷</span>
+          <span>Scan New Invoice</span>
+        </button>
+
+        <div style="margin-top: 14px;">
+          <button id="demo-btn" class="btn btn-secondary" style="padding: 12px 24px; font-size: 15px;">
+            Load Demo Invoice (no camera)
+          </button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-active">0</div>
+          <div class="stat-label">Being Chased</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-overdue">0</div>
+          <div class="stat-label">Overdue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-sent">0</div>
+          <div class="stat-label">Reminders Sent</div>
+        </div>
+      </div>
+
+      <div style="text-align:center; color:#64748b; font-size:13px; padding-bottom: 80px;">
+        Works completely offline after first OCR download.<br>
+        Your data stays on your device.
+      </div>
+    </div>
+  </div>
+
+  <!-- MY INVOICES VIEW -->
+  <div id="invoices-view" class="view">
+    <div class="container" style="padding-top: 16px; padding-bottom: 100px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding:0 4px;">
+        <div class="section-title" style="margin:0;">My Invoices</div>
+        <button id="sync-btn" class="btn btn-secondary" style="padding:8px 16px; font-size:14px;">🔄 Sync Reminders</button>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <input id="search-input" type="text" class="form-input" placeholder="Search customer or invoice #" style="font-size:15px; padding:12px 16px;">
+      </div>
+
+      <div id="invoices-list"></div>
+
+      <div id="invoices-empty" class="empty-state hidden">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/></svg>
+        <p style="margin:8px 0 0; font-size:15px;">No invoices yet.<br>Tap "Scan New Invoice" to get started.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCAN / CAPTURE MODAL -->
+  <div id="scan-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Capture Invoice</div>
+        <button id="scan-close" class="icon-btn" style="width:36px;height:36px;font-size:20px;">✕</button>
+      </div>
+
+      <div id="capture-area">
+        <div style="border: 2px dashed var(--border); border-radius: 16px; padding: 40px 20px; text-align:center; margin-bottom:20px;">
+          <div style="font-size:42px; margin-bottom:8px;">📷</div>
+          <p style="margin:0 0 16px; color:var(--text-muted);">Take a clear photo of the invoice or upload from your gallery.</p>
+
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+            <button id="camera-btn" class="btn btn-primary" style="flex:1; min-width:140px;">Take Photo</button>
+            <button id="gallery-btn" class="btn btn-secondary" style="flex:1; min-width:140px;">Upload from Gallery</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="preview-area" class="hidden">
+        <img id="preview-img" class="preview-img" alt="Invoice preview">
+        <div style="display:flex; gap:12px; margin-bottom:20px;">
+          <button id="retake-btn" class="btn btn-secondary" style="flex:1;">Retake</button>
+          <button id="ocr-btn" class="btn btn-primary" style="flex:1;">Extract Text with OCR</button>
+        </div>
+      </div>
+
+      <div id="ocr-progress" class="hidden">
+        <div style="font-weight:600; margin-bottom:8px;" id="ocr-status">Processing...</div>
+        <div class="progress-bar"><div class="progress-fill" id="ocr-progress-fill" style="width:0%"></div></div>
+        <div style="font-size:13px; color:var(--text-muted);" id="ocr-detail">This may take 10–30 seconds the first time.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEW / EDIT FORM MODAL -->
+  <div id="review-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Review &amp; Edit</div>
+        <button id="review-close" class="icon-btn" style="width:36px;height:36px;font-size:20px;">✕</button>
+      </div>
+
+      <div style="margin-bottom:16px; font-size:14px; color:var(--text-muted);">
+        Review the extracted details and make corrections. Customer email is required to send reminders.
+      </div>
+
+      <form id="review-form">
+        <div class="form-group">
+          <label class="form-label">Your Business Name</label>
+          <input type="text" id="business-name" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Customer / Company Name</label>
+          <input type="text" id="customer-name" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Customer Email (required for reminders)</label>
+          <input type="email" id="customer-email" class="form-input" placeholder="billing@company.com" required>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Invoice Number</label>
+            <input type="text" id="invoice-number" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount Due</label>
+            <input type="text" id="amount" class="form-input" placeholder="1247.50">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input type="date" id="due-date" class="form-input" required>
+        </div>
+
+        <details style="margin:16px 0;">
+          <summary style="cursor:pointer; color:var(--text-muted); font-size:13px;">Show extracted raw text (for reference)</summary>
+          <div id="raw-text" class="raw-text" style="margin-top:8px;"></div>
+        </details>
+
+        <div style="display:flex; gap:12px; margin-top:24px;">
+          <button type="button" id="cancel-review" class="btn btn-secondary" style="flex:1;">Cancel</button>
+          <button type="submit" id="start-chasing-btn" class="btn btn-primary" style="flex:1;">Start Chasing</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Settings</div>
+        <button id="settings-close" class="icon-btn" style="width:36px;height:36px;font-size:20px;">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Your Business Name (default)</label>
+        <input type="text" id="settings-business" class="form-input">
+      </div>
+
+      <div style="margin:20px 0 8px; font-weight:600;">Email Reminders (EmailJS)</div>
+      <p style="font-size:13px; color:var(--text-muted); margin-top:0;">Free account at <a href="https://www.emailjs.com" target="_blank" rel="noopener">emailjs.com</a> (200 emails/month). Create a service + template, then paste the IDs here.</p>
+
+      <div class="form-group">
+        <label class="form-label">Public Key</label>
+        <input type="text" id="settings-emailjs-key" class="form-input" placeholder="user_xxxxxxxxxxxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Service ID</label>
+        <input type="text" id="settings-emailjs-service" class="form-input" placeholder="service_xxxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Template ID</label>
+        <input type="text" id="settings-emailjs-template" class="form-input" placeholder="template_xxxx">
+      </div>
+
+      <div style="display:flex; gap:10px; margin:16px 0;">
+        <button id="save-settings" class="btn btn-primary" style="flex:1;">Save Settings</button>
+        <button id="test-emailjs" class="btn btn-secondary" style="flex:1;">Test Connection</button>
+      </div>
+
+      <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:16px; font-size:13px;">
+        <button id="export-btn" class="btn btn-secondary" style="width:100%; margin-bottom:8px;">Export All Data (JSON)</button>
+        <button id="import-btn" class="btn btn-secondary" style="width:100%;">Import Data</button>
+        <input type="file" id="import-file" accept=".json" class="hidden">
+        <button id="clear-data" class="btn" style="width:100%; margin-top:12px; background:#fee2e2; color:#b91c1c; border:none;">Clear All Data</button>
+      </div>
+
+      <div id="install-pwa" class="hidden" style="margin-top:16px;">
+        <button id="install-btn" class="btn btn-secondary" style="width:100%;">Add to Home Screen</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="#" class="nav-item active" data-view="home-view">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </a>
+    <a href="#" class="nav-item" data-view="invoices-view">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <span>My Invoices</span>
+    </a>
+  </nav>
+
+  <!-- Hidden file inputs -->
+  <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
+  <input type="file" id="gallery-input" accept="image/*" class="hidden">
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

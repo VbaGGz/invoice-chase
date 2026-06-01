@@ -1,0 +1,18 @@
+{
+  "name": "invoice-chase",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Lightweight mobile-friendly PWA for chasing unpaid invoices (dev scripts only)",
+  "scripts": {
+    "serve": "python -m http.server 8080 || npx serve -p 8080",
+    "ui:capture": "node /path/to/playwright-toolkit/bin/pwtk.mjs capture",
+    "ui:baseline": "node /path/to/playwright-toolkit/bin/pwtk.mjs capture --baseline",
+    "ui:diff": "node /path/to/playwright-toolkit/bin/pwtk.mjs diff",
+    "ui:gallery": "node /path/to/playwright-toolkit/bin/pwtk.mjs gallery",
+    "test:e2e": "PWTK_BASE_URL=http://localhost:8080 npx playwright test",
+    "test:e2e:headed": "PWTK_BASE_URL=http://localhost:8080 npx playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}
